@@ -198,9 +198,17 @@ func (s *scanner) scan(x1, y1, x2, y2 int, dst []uint8) {
 					ic = img.COffset(x, y)
 				}
 
-				yy1 := int32(img.Y[iy]) * 0x10101
-				cb1 := int32(img.Cb[ic]) - 128
-				cr1 := int32(img.Cr[ic]) - 128
+				var yy1 int32
+				if iy < len(img.Y) {
+					yy1 = int32(img.Y[iy]) * 0x10101
+				}
+				var cb1, cr1 int32
+				if ic < len(img.Cb) {
+					cb1 = int32(img.Cb[ic]) - 128
+				}
+				if ic < len(img.Cr) {
+					cr1 = int32(img.Cr[ic]) - 128
+				}
 
 				r := yy1 + 91881*cr1
 				if uint32(r)&0xff000000 == 0 {
