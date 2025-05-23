@@ -199,8 +199,26 @@ func (s *scanner) scan(x1, y1, x2, y2 int, dst []uint8) {
 				}
 
 				yy1 := int32(img.Y[iy]) * 0x10101
-				cb1 := int32(img.Cb[ic]) - 128
-				cr1 := int32(img.Cr[ic]) - 128
+				var cbSample, crSample uint8
+
+				if len(img.Cb) == 0 {
+					cbSample = 128 // Neutral chroma if Cb slice is empty
+				} else if ic >= len(img.Cb) {
+					cbSample = img.Cb[len(img.Cb)-1] // Clamp to last element if ic is out of bounds
+				} else {
+					cbSample = img.Cb[ic] // Normal access
+				}
+
+				if len(img.Cr) == 0 {
+					crSample = 128 // Neutral chroma if Cr slice is empty
+				} else if ic >= len(img.Cr) {
+					crSample = img.Cr[len(img.Cr)-1] // Clamp to last element if ic is out of bounds
+				} else {
+					crSample = img.Cr[ic] // Normal access
+				}
+
+				cb1 := int32(cbSample) - 128
+				cr1 := int32(crSample) - 128
 
 				r := yy1 + 91881*cr1
 				if uint32(r)&0xff000000 == 0 {
