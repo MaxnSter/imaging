@@ -228,6 +228,27 @@ func BenchmarkRotate90(b *testing.B) {
 	}
 }
 
+func TestRotate90YCbCrOddHeight(t *testing.T) {
+	src := image.NewYCbCr(image.Rect(0, 0, 4, 3), image.YCbCrSubsampleRatio420)
+	idx := 0
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 4; x++ {
+			c := color.NRGBA{R: uint8(idx), G: uint8(idx * 2), B: uint8(idx * 3), A: 0xff}
+			yy, cb, cr := color.RGBToYCbCr(c.R, c.G, c.B)
+			src.Y[src.YOffset(x, y)] = yy
+			src.Cb[src.COffset(x, y)] = cb
+			src.Cr[src.COffset(x, y)] = cr
+			idx++
+		}
+	}
+
+	got := Rotate90(src)
+	want := Rotate90(toNRGBA(src))
+	if !compareNRGBA(got, want, 0) {
+		t.Fatalf("got result %#v want %#v", got, want)
+	}
+}
+
 func TestRotate180(t *testing.T) {
 	testCases := []struct {
 		name string
