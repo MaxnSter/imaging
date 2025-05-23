@@ -176,6 +176,10 @@ func (s *scanner) scan(x1, y1, x2, y2 int, dst []uint8) {
 
 		hy := img.Rect.Min.Y / 2
 		hx := img.Rect.Min.X / 2
+		
+		// Calculate the bounds for chroma arrays
+		chromaMaxIndex := len(img.Cb) - 1
+		
 		for y := y1; y < y2; y++ {
 			iy := (y-img.Rect.Min.Y)*img.YStride + (x1 - img.Rect.Min.X)
 
@@ -196,6 +200,14 @@ func (s *scanner) scan(x1, y1, x2, y2 int, dst []uint8) {
 					ic = yBase + (x/2 - hx)
 				default:
 					ic = img.COffset(x, y)
+				}
+				
+				// Clamp the chroma index to be within bounds
+				if ic > chromaMaxIndex {
+					ic = chromaMaxIndex
+				}
+				if ic < 0 {
+					ic = 0
 				}
 
 				yy1 := int32(img.Y[iy]) * 0x10101
